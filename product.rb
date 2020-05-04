@@ -1,17 +1,16 @@
 require 'securerandom'
-# require 'pry'
 
 class Product
   attr_accessor :name, :price, :description, :id
 
-  def initialize(name, price, description=nil)
+  def initialize(name:, price:, description:nil)
     @name = name
     @price = price
     @description = description
     @id = SecureRandom.hex(10)
   end
 
-  def show
+  def to_s
     title = "#{name}, cena #{price} zł"
     descript = "Opis: #{description}"
     if description

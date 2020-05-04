@@ -1,66 +1,62 @@
 require 'spec_helper'
 require_relative '../shop'
-# require_relative '../cart'
+require_relative '../cart'
 require_relative '../product'
 
 
 RSpec.describe Shop do
-  product = Product.new('Awesome product', 4.99)
-  subject { described_class.new([product]) }
+  let(:product_1) { Product.new(name:'Awesome product', price:4.99) }
+  let(:product_2) { Product.new(name:'Second product', price:1.99) }
+
+  subject(:shop) { described_class.new([product_1]) }
 
   describe 'initialize' do
     it 'initialize with given products' do
-      expect(subject.products).to eq [product]
+      expect(shop.products).to eq [product_1]
     end
   end
 
-  describe 'add_product' do
+  describe '#<<' do
     it 'adds a product to shop' do
-      product_2 = Product.new('Product 2', 1.99)
-      subject << product_2
-      expect(subject.products).to include product_2
-    end
-
-    it 'removes product fom shop' do
-      subject >> product
-      expect(subject.products).to eq []
+      expect{shop << product_2}.to change{shop.products}.from([product_1]).to([product_1, product_2])
     end
   end
 
-  describe 'show product' do
+  describe '#>>' do
+    it 'removes product fom shop' do
+      expect{shop >> product_1}.to change{shop.products}.from([product_1]).to([])
+    end
+  end
+
+  describe 'show _product' do
     it 'shows product by id' do
-      expect(subject.show_product_by_id(product.id)).to eq "Awesome product, cena 4.99 zł"
+      expect(subject.show_product_by_id(product_1.id)).to eq "Awesome product, cena 4.99 zł"
     end
 
     it 'show product by object' do
-      expect(subject.show_product(product)).to eq "Awesome product, cena 4.99 zł"
+      expect(subject.show_product(product_1)).to eq "Awesome product, cena 4.99 zł"
     end
   end
 
   describe 'cart operations' do
-    before do
-      subject.add_to_cart(product)
+    describe '#add_to_cart' do
+      it 'add products to cart' do
+        expect{subject.add_to_cart(product_2)}.to change{subject.cart.products}.from([]).to([product_2])
+      end
     end
 
-    it 'add products to cart' do
-      expect(subject.cart_products).to include product
+    describe '#remove_from_cart' do
+      before { subject.add_to_cart(product_1) }
+      it 'removes product from cart' do
+        expect{subject.remove_from_cart(product_1)}.to change{subject.cart.products}.from([product_1]).to([])
+      end
     end
 
-    it 'removes product from cart' do
-      subject.remove_from_cart(product)
-      expect(subject.cart_products).to eq []
-    end
-
-    it 'clears cart' do
-      subject.clear_cart
-      expect(subject.cart_products).to eq []
-    end
-
-    it 'counts cart total price' do
-      product_2 = Product.new('Product 2', 1.99)
-      subject << product_2
-      subject.add_to_cart(product_2)
-      expect(subject.cart_total_price).to eq 6.98
+    describe '#clear-cart' do
+      before { subject.add_to_cart(product_1) }
+      it 'clears cart' do
+        expect{subject.clear_cart}.to change{subject.cart.products}.from([product_1]).to([])
+      end
     end
   end
 end

@@ -16,4 +16,8 @@ class Cart
   def clear
     @products = []
   end
+
+  def cart_total_price
+    products.inject(0) { |sum, product| sum + product.price }
+  end
 end
